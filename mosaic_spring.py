@@ -12,7 +12,6 @@ context = Context(
     model_dir="/home/valentina/dev/aoscm/ece3-scm",
     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-    plotting_dir="/home/valentina/dev/aoscm/experiments/plots",
     data_dir="/home/valentina/dev/aoscm/initial_data/mosaic_spring",
 )
 

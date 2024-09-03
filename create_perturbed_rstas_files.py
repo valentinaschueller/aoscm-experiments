@@ -17,7 +17,6 @@ context = Context(
     model_dir="/home/valentina/dev/aoscm/ece3-scm",
     output_dir="/home/valentina/dev/aoscm/scm_rundir",
     template_dir="/home/valentina/dev/aoscm/scm_rundir/templates",
-    plotting_dir="/home/valentina/dev/aoscm/scm_rundir/plots",
     data_dir="/home/valentina/dev/aoscm/initial_data/nwp",
 )
 

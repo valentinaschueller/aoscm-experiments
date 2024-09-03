@@ -12,7 +12,6 @@ context = Context(
     model_dir="/home/x_valsc/aoscm",
     output_dir="/home/x_valsc/experiments/output",
     template_dir="/home/x_valsc/rundir/templates",
-    plotting_dir="/home/x_valsc/experiments/plots",
     data_dir="/home/x_valsc/initial_data/mosaic_spring",
 )
 

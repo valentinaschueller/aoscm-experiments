@@ -12,7 +12,6 @@ context = Context(
     model_dir="/home/vschuller/aoscm",
     output_dir="/home/vschuller/rundir",
     template_dir="/home/vschuller/ece-scm-coupling/templates",
-    plotting_dir="/home/vschuller/rundir/plots",
     data_dir="/home/schuller/initial_data/control_experiment",
 )
 
