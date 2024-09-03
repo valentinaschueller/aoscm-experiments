@@ -21,7 +21,7 @@ max_iters = 30
 exp_prefix = "MOS"
 
 start_date = pd.Timestamp("2020-05-15")
-simulation_duration = pd.Timedelta(4, "days")
+simulation_duration = pd.Timedelta(3, "days")
 ifs_input_start_date = pd.Timestamp("2020-05-15")
 ifs_input_freq = pd.Timedelta(1, "hours")
 nstrtini = compute_nstrtini(start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600))
