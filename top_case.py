@@ -17,9 +17,6 @@ context = Context(
 )
 
 cpl_schemes = [0, 1, 2]
-dt_cpl = 900
-dt_ifs = 900
-dt_nemo = 900
 max_iters = 30
 exp_prefix = "TOP"
 
