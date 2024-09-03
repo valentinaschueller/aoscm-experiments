@@ -18,16 +18,16 @@ context = Context(
 
 cpl_schemes = [0, 1, 2]
 max_iters = 20
-exp_prefix = "T2H"
+exp_prefix = "T1H"
 
 start_date = pd.Timestamp("2020-04-16")
-simulation_duration = pd.Timedelta(2, "hours")
-ifs_input_start_date = pd.Timestamp("2020-04-12")
+simulation_duration = pd.Timedelta(1, "hour")
+ifs_input_start_date = pd.Timestamp("2020-04-16")
 ifs_input_freq = pd.Timedelta(1, "hours")
 nstrtini = compute_nstrtini(start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600))
 
 experiment = Experiment(
-    dt_cpl=3600,
+    dt_cpl=900,
     dt_ifs=900,
     dt_nemo=900,
     exp_id="",
