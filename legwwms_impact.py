@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 import proplot as pplt
-import xarray as xr
-
 import utils.plotting as uplt
+import xarray as xr
 from context import Context
 from setup_experiment import set_experiment_date_properties, set_experiment_input_files
 from utils.files import NEMOPreprocessor, OIFSPreprocessor

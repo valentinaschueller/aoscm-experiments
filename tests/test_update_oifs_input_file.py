@@ -4,9 +4,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-import xarray as xr
-
 import utils.update_oifs_input_file as uoif
+import xarray as xr
 from utils.files import OIFSPreprocessor
 
 

@@ -1,11 +1,9 @@
 import pandas as pd
-
 from AOSCMcoupling.context import Context
-from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.experiment import Experiment
-from AOSCMcoupling.helpers import AOSCM, reduce_output, compute_nstrtini
+from AOSCMcoupling.helpers import AOSCM, compute_nstrtini, reduce_output
+from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.templates import render_config_xml
-
 
 cpl_schemes = [0, 1, 2]
 max_iters = 20
@@ -24,7 +22,9 @@ start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
 ifs_input_start_date = pd.Timestamp("2014-07-01")
 ifs_input_freq = pd.Timedelta(6, "hours")
-nstrtini = compute_nstrtini(start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600))
+nstrtini = compute_nstrtini(
+    start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600)
+)
 
 experiment = Experiment(
     dt_cpl=3600,
@@ -51,9 +51,7 @@ def run_naive_experiments():
         experiment.cpl_scheme = cpl_scheme
         render_config_xml(context, experiment)
         aoscm.run_coupled_model()
-        reduce_output(
-            context.output_dir / experiment.exp_id, keep_debug_output=False
-        )
+        reduce_output(context.output_dir / experiment.exp_id, keep_debug_output=False)
 
 
 def run_schwarz_experiments():

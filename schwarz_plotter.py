@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-
 from AOSCMcoupling.files import NEMOPreprocessor, OIFSPreprocessor
 from plotting import set_style
 
@@ -72,8 +71,8 @@ def create_plots(da: xr.DataArray, file_stem: str, axis_settings: dict):
     fig.savefig(plot_folder / f"{file_stem}.pdf", bbox_inches="tight")
     fig.savefig(plot_folder / f"{file_stem}.png", bbox_inches="tight", dpi=300)
 
-    # ani = animate(da, **axis_settings)
-    # ani.save(plot_folder / f"{file_stem}.mp4", dpi=300)
+    ani = animate(da, **axis_settings)
+    ani.save(plot_folder / f"{file_stem}.mp4", dpi=300)
     plt.close("all")
 
 
@@ -83,7 +82,6 @@ oifs_preprocessor = OIFSPreprocessor(start_date, time_shift)
 nemo_preprocessor = NEMOPreprocessor(start_date, time_shift)
 
 plot_folder.mkdir(exist_ok=True)
-max_iters = 8
 alpha = 0.25
 
 sequential_swr = False
@@ -98,9 +96,7 @@ oifs_diagvars = load_iterates(
 oifs_progvars = load_iterates(
     "progvar.nc", oifs_preprocessor.preprocess, max_iters, step
 )
-nemo_t_grids = load_iterates(
-    f"*_T*.nc", nemo_preprocessor.preprocess, max_iters, step
-)
+nemo_t_grids = load_iterates(f"*_T*.nc", nemo_preprocessor.preprocess, max_iters, step)
 # nemo_ice_grids = load_iterates(
 #     f"*_icemod.nc", nemo_preprocessor.preprocess, max_iters, step
 # )
@@ -109,8 +105,9 @@ nemo_t_grids = load_iterates(
 # %% 10m Temperature
 
 axis_settings = {
-    "title": "Temperature at 10m (OIFS)",
+    "title": "Atmospheric Temperature at 10m",
     "ylabel": "Temperature [°C]",
+    "ylim": [-10, -3],
 }
 
 create_plots(oifs_progvars.t[:, :, -1] - 273.15, "10t_oifs", axis_settings)

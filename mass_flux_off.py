@@ -1,5 +1,4 @@
 import pandas as pd
-
 from context import Context
 from schwarz_coupling import SchwarzCoupling
 from setup_experiment import set_experiment_date_properties, set_experiment_input_files

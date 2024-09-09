@@ -3,9 +3,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
-
 import top_case as experiment_runner
+import xarray as xr
 from utils.files import NEMOPreprocessor, OIFSPreprocessor
 from utils.plotting import load_from_multiple_experiments
 
