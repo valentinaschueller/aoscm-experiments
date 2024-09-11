@@ -27,7 +27,7 @@ nstrtini = compute_nstrtini(
 )
 
 experiment = Experiment(
-    dt_cpl=900,
+    dt_cpl=3600,
     dt_ifs=900,
     dt_nemo=900,
     exp_id="",
