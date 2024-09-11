@@ -5,13 +5,21 @@ from AOSCMcoupling.helpers import AOSCM, compute_nstrtini, reduce_output
 from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.templates import render_config_xml
 
+# context = Context(
+#     platform="tetralith",
+#     model_version=4,
+#     model_dir="/home/x_valsc/aoscm",
+#     output_dir="/home/x_valsc/experiments/output",
+#     template_dir="/home/x_valsc/rundir/templates",
+#     data_dir="/home/x_valsc/initial_data/mosaic_spring",
+# )
 context = Context(
-    platform="tetralith",
+    platform="cosmos",
     model_version=4,
-    model_dir="/home/x_valsc/aoscm",
-    output_dir="/home/x_valsc/experiments/output",
-    template_dir="/home/x_valsc/rundir/templates",
-    data_dir="/home/x_valsc/initial_data/mosaic_spring",
+    model_dir="/home/vschuller/aoscm",
+    output_dir="/home/vschuller/experiments/output",
+    template_dir="/home/vschuller/ece-scm-coupling/templates",
+    data_dir="/home/vschuller/initial_data/mosaic_spring",
 )
 
 cpl_schemes = [0, 1, 2]
@@ -27,7 +35,7 @@ nstrtini = compute_nstrtini(
 )
 
 experiment = Experiment(
-    dt_cpl=900,
+    dt_cpl=3600,
     dt_ifs=900,
     dt_nemo=900,
     exp_id="",

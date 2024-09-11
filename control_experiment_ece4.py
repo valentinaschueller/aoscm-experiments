@@ -18,6 +18,15 @@ context = Context(
     data_dir="/home/x_valsc/initial_data/control_experiment",
 )
 
+context = Context(
+    platform="cosmos",
+    model_version=4,
+    model_dir="/home/vschuller/aoscm",
+    output_dir="/home/vschuller/experiments/output",
+    template_dir="/home/vschuller/rundir/templates",
+    data_dir="/home/vschuller/initial_data/control_experiment",
+)
+
 start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
 ifs_input_start_date = pd.Timestamp("2014-07-01")
