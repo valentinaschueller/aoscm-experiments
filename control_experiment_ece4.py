@@ -7,23 +7,23 @@ from AOSCMcoupling.templates import render_config_xml
 
 cpl_schemes = [0, 1, 2]
 max_iters = 20
-exp_prefix = "CE4"
+exp_prefix = "CEX"
 
-context = Context(
-    platform="tetralith",
-    model_version=4,
-    model_dir="/home/x_valsc/aoscm",
-    output_dir="/home/x_valsc/experiments/output",
-    template_dir="/home/x_valsc/rundir/templates",
-    data_dir="/home/x_valsc/initial_data/control_experiment",
-)
+# context = Context(
+#     platform="tetralith",
+#     model_version=4,
+#     model_dir="/home/x_valsc/aoscm",
+#     output_dir="/home/x_valsc/experiments/output",
+#     template_dir="/home/x_valsc/rundir/templates",
+#     data_dir="/home/x_valsc/initial_data/control_experiment",
+# )
 
 context = Context(
     platform="cosmos",
     model_version=4,
     model_dir="/home/vschuller/aoscm",
     output_dir="/home/vschuller/experiments/output",
-    template_dir="/home/vschuller/rundir/templates",
+    template_dir="/home/vschuller/ece-scm-coupling/templates",
     data_dir="/home/vschuller/initial_data/control_experiment",
 )
 
