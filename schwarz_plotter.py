@@ -63,13 +63,16 @@ def animate(da: xr.DataArray, **kwargs):
     return ani
 
 
-def create_plots(da: xr.DataArray, file_stem: str, axis_settings: dict):
+def create_plots(da: xr.DataArray, file_stem: str, axis_settings: dict, video: bool = True):
     axis_settings["xlabel"] = "Time"
     axis_settings["xmargin"] = 0.0
 
     fig = plot_all_iterates(da, **axis_settings)
     fig.savefig(plot_folder / f"{file_stem}.pdf", bbox_inches="tight")
     fig.savefig(plot_folder / f"{file_stem}.png", bbox_inches="tight", dpi=300)
+
+    if not video:
+        return
 
     ani = animate(da, **axis_settings)
     ani.save(plot_folder / f"{file_stem}.mp4", dpi=300)
@@ -97,9 +100,9 @@ oifs_progvars = load_iterates(
     "progvar.nc", oifs_preprocessor.preprocess, max_iters, step
 )
 nemo_t_grids = load_iterates(f"*_T*.nc", nemo_preprocessor.preprocess, max_iters, step)
-# nemo_ice_grids = load_iterates(
-#     f"*_icemod.nc", nemo_preprocessor.preprocess, max_iters, step
-# )
+nemo_ice_grids = load_iterates(
+    f"*_icemod*.nc", nemo_preprocessor.preprocess, max_iters, step
+)
 
 
 # %% 10m Temperature
@@ -107,10 +110,19 @@ nemo_t_grids = load_iterates(f"*_T*.nc", nemo_preprocessor.preprocess, max_iters
 axis_settings = {
     "title": "Atmospheric Temperature at 10m",
     "ylabel": "Temperature [°C]",
-    "ylim": [-10, -3],
 }
 
-create_plots(oifs_progvars.t[:, :, -1] - 273.15, "10t_oifs", axis_settings)
+create_plots(oifs_progvars.t[:, :, -1] - 273.15, "10t_oifs", axis_settings, video=False)
+
+# %% Surface Albedo
+
+axis_settings = {
+    "title": "Surface Albedo (OIFS)",
+    "ylabel": "Albedo [-]",
+    "ylim": [0, 1],
+}
+
+create_plots(oifs_diagvars.sfc_albedo, "sfc_albedo_oifs", axis_settings, video=False)
 
 # %% 2m Temperature
 
@@ -119,7 +131,7 @@ axis_settings = {
     "ylabel": "Temperature [°C]",
 }
 
-create_plots(oifs_diagvars.temperature_2m - 273.15, "2t_oifs", axis_settings)
+create_plots(oifs_diagvars.temperature_2m - 273.15, "2t_oifs", axis_settings, video=False)
 
 # %% Surface Sensible Heat Flux
 axis_settings = {
@@ -127,7 +139,7 @@ axis_settings = {
     "ylabel": "Heat Flux $[W m^{-2}]$",
 }
 
-create_plots(oifs_diagvars.sfc_sen_flx, "ssh_oifs", axis_settings)
+create_plots(oifs_diagvars.sfc_sen_flx, "ssh_oifs", axis_settings, video=False)
 
 # %% SST
 
@@ -136,7 +148,7 @@ axis_settings = {
     "ylabel": "Temperature [°C]",
 }
 
-create_plots(nemo_t_grids.sosstsst, "sst_nemo", axis_settings)
+create_plots(nemo_t_grids.sosstsst, "sst_nemo", axis_settings, video=False)
 
 # %% SSW
 
@@ -145,7 +157,7 @@ axis_settings = {
     "ylabel": "Radiative Flux $[W m^{-2}]$",
 }
 
-create_plots(oifs_diagvars.sfc_swrad, "ssw_oifs", axis_settings)
+create_plots(oifs_diagvars.sfc_swrad, "ssw_oifs", axis_settings, video=False)
 
 # %% Sea Ice Concentration
 
@@ -155,7 +167,7 @@ axis_settings = {
     "ylabel": "Sea Ice Concentration [-]",
 }
 
-# create_plots(nemo_ice_grids.iceconc, "iceconc_lim3", axis_settings)
+create_plots(nemo_ice_grids.iceconc, "iceconc_lim3", axis_settings, video=False)
 
 # %% Ice Surface Temperature
 
@@ -164,7 +176,10 @@ axis_settings = {
     "ylabel": "Temperature [°C]",
 }
 
-# create_plots(nemo_ice_grids.icest, "icest_lim3", axis_settings)
+try:
+    create_plots(nemo_ice_grids.icest, "icest_lim3", axis_settings, video=False)
+except AttributeError:
+    create_plots(nemo_ice_grids.icettop, "icest_lim3", axis_settings, video=False)
 
 # %% Mean Ice Temperature
 
@@ -173,7 +188,10 @@ axis_settings = {
     "ylabel": "Temperature [°C]",
 }
 
-# create_plots(nemo_ice_grids.micet, "micet_lim3", axis_settings)
+try:
+    create_plots(nemo_ice_grids.micet, "micet_lim3", axis_settings, video=False)
+except AttributeError:
+    create_plots(nemo_ice_grids.icetemp, "micet_lim3", axis_settings, video=False)
 
 # %% Surface Energy Budget
 
@@ -188,7 +206,7 @@ axis_settings = {
     "ylabel": "Energy Budget $[W m^{-2}]$",
 }
 
-create_plots(oifs_seb, "seb_oifs", axis_settings)
+create_plots(oifs_seb, "seb_oifs", axis_settings, video=False)
 
 
 # %%
@@ -198,4 +216,6 @@ axis_settings = {
     "ylabel": "Heat Content [J]",
 }
 
-# create_plots(nemo_ice_grids.icehc, "icehc_lim3", axis_settings)
+create_plots(nemo_ice_grids.icehc, "icehc_lim3", axis_settings, video=False)
+
+# %%
