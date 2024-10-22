@@ -5,19 +5,27 @@ from AOSCMcoupling.helpers import AOSCM, compute_nstrtini, reduce_output
 from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.templates import render_config_xml
 
+# context = Context(
+#     platform="tetralith",
+#     model_version=4,
+#     model_dir="/home/x_valsc/aoscm",
+#     output_dir="/home/x_valsc/experiments/output",
+#     template_dir="/home/x_valsc/rundir/templates",
+#     data_dir="/home/x_valsc/initial_data/top_case",
+# )
 context = Context(
-    platform="tetralith",
+    platform="cosmos",
     model_version=4,
-    model_dir="/home/x_valsc/aoscm",
-    output_dir="/home/x_valsc/experiments/output",
-    template_dir="/home/x_valsc/rundir/templates",
-    data_dir="/home/x_valsc/initial_data/top_case",
+    model_dir="/home/vschuller/aoscm",
+    output_dir="/home/vschuller/experiments/output",
+    template_dir="/home/vschuller/ece-scm-coupling/templates",
+    data_dir="/home/vschuller/initial_data/top_case",
 )
 
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30
-exp_prefix = "TO4"
+exp_prefix = "TOP"
 
 start_date = pd.Timestamp("2020-04-16")
 simulation_duration = pd.Timedelta(2, "days")
