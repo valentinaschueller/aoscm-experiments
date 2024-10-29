@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from dataclasses import asdict
 
 import pandas as pd
 from AOSCMcoupling import (
@@ -13,31 +14,39 @@ from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_set
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
-    return data_dir / f"init_PAPASTATION_{start_date.date()}.nc"
+    return data_dir / "nemo_from_CMEMS" / f"init_PAPASTATION_{start_date.date()}.nc"
 
 
 def get_rstas_file(data_dir: Path, start_date: pd.Timestamp, source: str):
     date = start_date.date()
     hour = f"{start_date.time().hour:02}"
     rstas_name = f"rstas_{date}_{hour}_{source}.nc"
-    return data_dir / f"{rstas_name}.nc"
+    return data_dir / "rstas_from_AMIP" / rstas_name
 
 
 def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
-    return data_dir / f"rstos_{start_date.date()}.nc"
+    return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
 def get_oifs_input_file(data_dir: Path, source: str):
-    return data_dir / f"papa_2014-07_{source}.nc"
+    return data_dir / "ifs" / f"papa_2014-07_{source}.nc"
 
 
+# context = Context(
+#     platform="pc-gcc-openmpi",
+#     model_version=3,
+#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
+#     output_dir="/home/valentina/dev/aoscm/scm_rundir",
+#     template_dir="/home/valentina/dev/aoscm/scm_rundir/templates",
+#     data_dir="/home/valentina/dev/aoscm/initial_data/nwp",
+# )
 context = Context(
-    platform="pc-gcc-openmpi",
-    model_version=3,
-    model_dir="/home/valentina/dev/aoscm/ece3-scm",
-    output_dir="/home/valentina/dev/aoscm/scm_rundir",
-    template_dir="/home/valentina/dev/aoscm/scm_rundir/templates",
-    data_dir="/home/valentina/dev/aoscm/initial_data/nwp",
+    platform="cosmos",
+    model_version=4,
+    model_dir="/home/vschuller/aoscm",
+    output_dir="/home/vschuller/experiments/output",
+    template_dir="/home/vschuller/ece-scm-coupling/templates",
+    data_dir="/home/vschuller/initial_data/nwp",
 )
 
 start_dates = pd.date_range(
@@ -69,7 +78,7 @@ if __name__ == "__main__":
 
     aoscm = AOSCM(context)
 
-    for start_date in start_dates:
+    for start_date in start_dates[:3]:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
@@ -77,7 +86,7 @@ if __name__ == "__main__":
             (start_date_directory / source).mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, forcing_file_freq
+            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
@@ -109,18 +118,16 @@ if __name__ == "__main__":
                 run_directory.rename(new_directory)
 
             experiment.cpl_scheme = 0
-            schwarz = SchwarzCoupling(experiment)
+            schwarz = SchwarzCoupling(experiment, context)
             schwarz.run(max_iters, stop_at_convergence=True)
             new_directory = start_date_directory / source / "schwarz"
-            converged_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter - 2}")
+            converged_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter}")
             converged_schwarz_dir.rename(new_directory)
-            for iter in range(1, schwarz.iter - 2):
+            for iter in range(1, schwarz.iter):
                 nonconverged_schwarz_dir = Path(f"{schwarz.run_directory}_{iter}")
                 shutil.rmtree(nonconverged_schwarz_dir)
-            final_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter - 1}")
-            shutil.rmtree(final_schwarz_dir)
             if not schwarz.converged:
-                non_converged_experiments.append(experiment.copy())
+                non_converged_experiments.append(asdict(experiment))
 
     print("Experiments which did not converge:")
     print(non_converged_experiments)
