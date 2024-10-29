@@ -6,7 +6,7 @@ from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.templates import render_config_xml
 
 cpl_schemes = [0, 1, 2]
-max_iters = 20
+max_iters = 30
 exp_prefix = "CEX"
 
 # context = Context(
