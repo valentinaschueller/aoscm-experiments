@@ -1,6 +1,5 @@
 import shutil
 from pathlib import Path
-from dataclasses import asdict
 
 import pandas as pd
 from AOSCMcoupling import (
@@ -17,10 +16,10 @@ def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "nemo_from_CMEMS" / f"init_PAPASTATION_{start_date.date()}.nc"
 
 
-def get_rstas_file(data_dir: Path, start_date: pd.Timestamp, source: str):
+def get_rstas_file(data_dir: Path, start_date: pd.Timestamp):
     date = start_date.date()
     hour = f"{start_date.time().hour:02}"
-    rstas_name = f"rstas_{date}_{hour}_{source}.nc"
+    rstas_name = f"rstas_{date}_{hour}_era.nc"
     return data_dir / "rstas_from_AMIP" / rstas_name
 
 
@@ -28,8 +27,8 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
-def get_oifs_input_file(data_dir: Path, source: str):
-    return data_dir / "ifs" / f"papa_2014-07_{source}.nc"
+def get_oifs_input_file(data_dir: Path):
+    return data_dir / "ifs" / f"papa_2014-07_era.nc"
 
 
 # context = Context(
@@ -50,7 +49,7 @@ context = Context(
 )
 
 start_dates = pd.date_range(
-    pd.Timestamp("2014-07-03 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6H"
+    pd.Timestamp("2014-07-01 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6H"
 )
 simulation_time = pd.Timedelta(2, "days")
 
@@ -63,13 +62,11 @@ coupling_scheme_to_name = {
     2: "oce-first",
 }
 
-max_iters = 20
+max_iters = 30
 
 exp_id = "ENSB"
 ensemble_directory = context.output_dir / "ensemble_output"
 run_directory = context.output_dir / exp_id
-
-sources = ["par", "atm", "oce"]
 
 non_converged_experiments = []
 
@@ -78,56 +75,55 @@ if __name__ == "__main__":
 
     aoscm = AOSCM(context)
 
-    for start_date in start_dates[:3]:
+    for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
-        for source in sources:
-            (start_date_directory / source).mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
             start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
+        ifs_input_file=get_oifs_input_file(context.data_dir)
+        rstas_file = get_rstas_file(context.data_dir, start_date)
 
-        for source in sources:
-            experiment = Experiment(
-                dt_cpl=3600,
-                dt_ifs=720,
-                dt_nemo=1800,
-                ifs_nradfr=-1,
-                ifs_leocwa=False,
-                exp_id=exp_id,
-                run_start_date=start_date,
-                run_end_date=start_date + simulation_time,
-                ifs_nstrtini=nstrtini,
-                nem_input_file=nemo_input_file,
-                ifs_input_file=get_oifs_input_file(context.data_dir, source),
-                oasis_rstas=get_rstas_file(context.data_dir, start_date, source),
-                oasis_rstos=rstos_file,
-            )
+        experiment = Experiment(
+            dt_cpl=3600,
+            dt_ifs=720,
+            dt_nemo=1800,
+            ifs_nradfr=-1,
+            ifs_leocwa=False,
+            exp_id=exp_id,
+            run_start_date=start_date,
+            run_end_date=start_date + simulation_time,
+            ifs_nstrtini=nstrtini,
+            nem_input_file=nemo_input_file,
+            ifs_input_file=ifs_input_file,
+            oasis_rstas=rstas_file,
+            oasis_rstos=rstos_file,
+        )
 
-            for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():
-                experiment.cpl_scheme = coupling_scheme
-                render_config_xml(context, experiment)
-                aoscm.run_coupled_model()
-                reduce_output(run_directory, keep_debug_output=False)
-                serialize_experiment_setup(experiment, run_directory)
-                new_directory = start_date_directory / source / cpl_scheme_name
-                run_directory.rename(new_directory)
+        for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():
+            experiment.cpl_scheme = coupling_scheme
+            render_config_xml(context, experiment)
+            aoscm.run_coupled_model()
+            reduce_output(run_directory, keep_debug_output=False)
+            serialize_experiment_setup(experiment, run_directory)
+            new_directory = start_date_directory / cpl_scheme_name
+            run_directory.rename(new_directory)
 
-            experiment.cpl_scheme = 0
-            schwarz = SchwarzCoupling(experiment, context)
-            schwarz.run(max_iters, stop_at_convergence=True)
-            new_directory = start_date_directory / source / "schwarz"
-            converged_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter}")
-            converged_schwarz_dir.rename(new_directory)
-            for iter in range(1, schwarz.iter):
-                nonconverged_schwarz_dir = Path(f"{schwarz.run_directory}_{iter}")
-                shutil.rmtree(nonconverged_schwarz_dir)
-            if not schwarz.converged:
-                non_converged_experiments.append(asdict(experiment))
+        experiment.cpl_scheme = 0
+        schwarz = SchwarzCoupling(experiment, context)
+        schwarz.run(max_iters, stop_at_convergence=True)
+        new_directory = start_date_directory / "schwarz"
+        converged_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter}")
+        converged_schwarz_dir.rename(new_directory)
+        for iter in range(1, schwarz.iter):
+            nonconverged_schwarz_dir = Path(f"{schwarz.run_directory}_{iter}")
+            shutil.rmtree(nonconverged_schwarz_dir)
+        if not schwarz.converged:
+            non_converged_experiments.append(experiment.run_start_date)
 
     print("Experiments which did not converge:")
     print(non_converged_experiments)
