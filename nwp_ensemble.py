@@ -2,14 +2,10 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from AOSCMcoupling import (
-    Context,
-    Experiment,
-    SchwarzCoupling,
-    compute_nstrtini,
-    render_config_xml,
-)
-from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+from AOSCMcoupling import (Context, Experiment, SchwarzCoupling,
+                           compute_nstrtini, render_config_xml)
+from AOSCMcoupling.helpers import (AOSCM, reduce_output,
+                                   serialize_experiment_setup)
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
