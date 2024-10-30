@@ -2,10 +2,14 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from AOSCMcoupling import (Context, Experiment, SchwarzCoupling,
-                           compute_nstrtini, render_config_xml)
-from AOSCMcoupling.helpers import (AOSCM, reduce_output,
-                                   serialize_experiment_setup)
+from AOSCMcoupling import (
+    Context,
+    Experiment,
+    SchwarzCoupling,
+    compute_nstrtini,
+    render_config_xml,
+)
+from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -58,7 +62,7 @@ coupling_scheme_to_name = {
     2: "oce-first",
 }
 
-max_iters = 30
+max_iters = 20
 
 exp_id = "ENSB"
 ensemble_directory = context.output_dir / "ensemble_output"
@@ -81,7 +85,7 @@ if __name__ == "__main__":
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file=get_oifs_input_file(context.data_dir)
+        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
 
         experiment = Experiment(
