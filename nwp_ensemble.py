@@ -49,7 +49,7 @@ context = Context(
 )
 
 start_dates = pd.date_range(
-    pd.Timestamp("2014-07-01 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6H"
+    pd.Timestamp("2014-07-01 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6h"
 )
 simulation_time = pd.Timedelta(2, "days")
 
