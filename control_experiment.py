@@ -1,13 +1,17 @@
 import pandas as pd
-from AOSCMcoupling.context import Context
-from AOSCMcoupling.experiment import Experiment
-from AOSCMcoupling.helpers import AOSCM, compute_nstrtini, reduce_output
-from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
-from AOSCMcoupling.templates import render_config_xml
+from AOSCMcoupling import (
+    AOSCM,
+    Context,
+    Experiment,
+    SchwarzCoupling,
+    compute_nstrtini,
+    reduce_output,
+    render_config_xml,
+)
 
 cpl_schemes = [0, 1, 2]
-max_iters = 20
-exp_prefix = "CEX"
+max_iters = 30
+exp_prefix = "C43"
 
 context = Context(
     platform="pc-gcc-openmpi",
@@ -16,6 +20,7 @@ context = Context(
     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
     data_dir="/home/valentina/dev/aoscm/initial_data/control_experiment",
+    # ifs_version="40r1v1.1.ref",
 )
 
 start_date = pd.Timestamp("2014-07-01")
