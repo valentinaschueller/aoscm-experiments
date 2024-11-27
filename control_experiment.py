@@ -9,10 +9,6 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 
-cpl_schemes = [0, 1, 2]
-max_iters = 30
-exp_prefix = "CEX"
-
 # context = Context(
 #     platform="pc-gcc-openmpi",
 #     model_version=3,
@@ -20,9 +16,9 @@ exp_prefix = "CEX"
 #     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
 #     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
 #     data_dir="/home/valentina/dev/aoscm/initial_data/control_experiment",
-#     # ifs_version="40r1v1.1.ref",
+#     ifs_version="40r1v1.1.ref",
+#     # ifs_version="43r3v1.ref",
 # )
-# exp_prefix = "C43"
 
 context = Context(
     platform="cosmos",
@@ -32,6 +28,12 @@ context = Context(
     template_dir="/home/vschuller/ece-scm-coupling/templates",
     data_dir="/home/vschuller/initial_data/control_experiment",
 )
+
+exp_prefix = "CEX"
+# exp_prefix = "C43"
+
+cpl_schemes = [0, 1, 2]
+max_iters = 30
 
 start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
