@@ -11,16 +11,26 @@ from AOSCMcoupling import (
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30
-exp_prefix = "C43"
+exp_prefix = "CEX"
+
+# context = Context(
+#     platform="pc-gcc-openmpi",
+#     model_version=3,
+#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
+#     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
+#     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
+#     data_dir="/home/valentina/dev/aoscm/initial_data/control_experiment",
+#     # ifs_version="40r1v1.1.ref",
+# )
+# exp_prefix = "C43"
 
 context = Context(
-    platform="pc-gcc-openmpi",
-    model_version=3,
-    model_dir="/home/valentina/dev/aoscm/ece3-scm",
-    output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
-    template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-    data_dir="/home/valentina/dev/aoscm/initial_data/control_experiment",
-    # ifs_version="40r1v1.1.ref",
+    platform="cosmos",
+    model_version=4,
+    model_dir="/home/vschuller/aoscm",
+    output_dir="/home/vschuller/experiments/output",
+    template_dir="/home/vschuller/ece-scm-coupling/templates",
+    data_dir="/home/vschuller/initial_data/control_experiment",
 )
 
 start_date = pd.Timestamp("2014-07-01")
@@ -33,8 +43,8 @@ nstrtini = compute_nstrtini(
 
 experiment = Experiment(
     dt_cpl=3600,
-    dt_ifs=900,
-    dt_nemo=900,
+    dt_ifs=720,
+    dt_nemo=1200,
     exp_id="",
     ifs_leocwa=False,
     with_ice=False,
@@ -45,6 +55,8 @@ experiment = Experiment(
     run_start_date=start_date,
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
+    ifs_levels=60,
+    ifs_nradfr=-1,
 )
 
 aoscm = AOSCM(context)
@@ -63,14 +75,7 @@ def run_schwarz_experiments():
     experiment.exp_id = f"{exp_prefix}S"
     experiment.cpl_scheme = 0
     schwarz_exp = SchwarzCoupling(experiment, context)
-    schwarz_exp.run(max_iters)
-
-
-def run_parallel_schwarz_without_cleanup():
-    experiment.exp_id = f"{exp_prefix}S"
-    experiment.cpl_scheme = 0
-    schwarz_exp = SchwarzCoupling(experiment, context, False)
-    schwarz_exp.run(max_iters)
+    schwarz_exp.run(max_iters, rel_tol=1e-5)
 
 
 if __name__ == "__main__":
