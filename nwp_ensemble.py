@@ -62,7 +62,7 @@ coupling_scheme_to_name = {
     2: "oce-first",
 }
 
-max_iters = 20
+max_iters = 30
 
 exp_id = "ENSB"
 ensemble_directory = context.output_dir / "ensemble_output"
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
         experiment.cpl_scheme = 0
         schwarz = SchwarzCoupling(experiment, context)
-        schwarz.run(max_iters, stop_at_convergence=True)
+        schwarz.run(max_iters, stop_at_convergence=True, rel_tol=1e-5)
         new_directory = start_date_directory / "schwarz"
         converged_schwarz_dir = Path(f"{schwarz.run_directory}_{schwarz.iter}")
         converged_schwarz_dir.rename(new_directory)
