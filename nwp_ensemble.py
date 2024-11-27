@@ -91,7 +91,7 @@ if __name__ == "__main__":
         experiment = Experiment(
             dt_cpl=3600,
             dt_ifs=720,
-            dt_nemo=1800,
+            dt_nemo=1200,
             ifs_nradfr=-1,
             ifs_leocwa=False,
             exp_id=exp_id,
@@ -102,6 +102,7 @@ if __name__ == "__main__":
             ifs_input_file=ifs_input_file,
             oasis_rstas=rstas_file,
             oasis_rstos=rstos_file,
+            ifs_levels=60,
         )
 
         for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():
