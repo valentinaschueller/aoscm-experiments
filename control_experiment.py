@@ -8,29 +8,12 @@ from AOSCMcoupling import (
     reduce_output,
     render_config_xml,
 )
+from helpers import get_context, AOSCMVersion
 
-# context = Context(
-#     platform="pc-gcc-openmpi",
-#     model_version=3,
-#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
-#     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
-#     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-#     data_dir="/home/valentina/dev/aoscm/initial_data/control_experiment",
-#     ifs_version="40r1v1.1.ref",
-#     # ifs_version="43r3v1.ref",
-# )
-
-context = Context(
-    platform="cosmos",
-    model_version=4,
-    model_dir="/home/vschuller/aoscm",
-    output_dir="/home/vschuller/experiments/output",
-    template_dir="/home/vschuller/ece-scm-coupling/templates",
-    data_dir="/home/vschuller/initial_data/control_experiment",
-)
+context = get_context(AOSCMVersion.ECE43, "control_experiment")
 
 exp_prefix = "CEX"
-# exp_prefix = "C43"
+exp_prefix = "C43"
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30
@@ -45,8 +28,8 @@ nstrtini = compute_nstrtini(
 
 experiment = Experiment(
     dt_cpl=3600,
-    dt_ifs=720,
-    dt_nemo=1200,
+    dt_ifs=900,
+    dt_nemo=900,
     exp_id="",
     ifs_leocwa=False,
     with_ice=False,
@@ -58,7 +41,6 @@ experiment = Experiment(
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
     ifs_levels=60,
-    ifs_nradfr=-1,
 )
 
 aoscm = AOSCM(context)

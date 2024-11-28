@@ -1,6 +1,8 @@
 import shutil
 from pathlib import Path
 
+from helpers import get_context, AOSCMVersion
+
 import pandas as pd
 from AOSCMcoupling import (
     Context,
@@ -41,24 +43,49 @@ def get_oifs_input_file(data_dir: Path):
     return data_dir / "MOS6merged.nc"
 
 
-# context = Context(
-#     platform="pc-gcc-openmpi",
-#     model_version=3,
-#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
-#     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
-#     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-#     data_dir="/home/valentina/dev/aoscm/initial_data/top_case",
-#     ifs_version="40r1v1.1.ref",
-# )
-context = Context(
-    platform="cosmos",
-    model_version=4,
-    model_dir="/home/vschuller/aoscm",
-    output_dir="/home/vschuller/experiments/output",
-    template_dir="/home/vschuller/ece-scm-coupling/templates",
-    data_dir="/home/vschuller/initial_data/top_case",
-)
+def generate_rstas_files(context: Context):
+    from compute_rstas import compute_rstas
 
+    aoscm = AOSCM(context)
+
+    simulation_time = pd.Timedelta(1, "h")
+
+    for start_date in start_dates:
+        start_date_string = f"{start_date.date()}_{start_date.hour:02}"
+
+        nstrtini = compute_nstrtini(
+            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+        )
+
+        rstas_template_file = Path("rstas_template.nc")
+        assert rstas_template_file.exists()
+
+        dummy_file = rstas_template_file
+
+        experiment = Experiment(
+            dt_cpl=3600,
+            dt_ifs=900,
+            dt_nemo=900,
+            ifs_leocwa=False,
+            exp_id=exp_id,
+            run_start_date=start_date,
+            run_end_date=start_date + simulation_time,
+            ifs_nstrtini=nstrtini,
+            nem_input_file=dummy_file,
+            ifs_input_file=get_oifs_input_file(context.data_dir),
+            oasis_rstas=dummy_file,
+            oasis_rstos=dummy_file,
+            ice_input_file=dummy_file,
+            ifs_levels=137,
+        )
+
+        render_config_xml(context, experiment)
+        aoscm.run_atmosphere_only()
+
+        compute_rstas(context.output_dir / exp_id, "rstas_template.nc", context.data_dir / "rstas_from_AMIP" / f"rstas_{start_date_string}.nc")
+
+
+context = get_context(AOSCMVersion.ECE3, "top_case")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
 )
@@ -81,7 +108,7 @@ run_directory = context.output_dir / exp_id
 
 non_converged_experiments = []
 
-if __name__ == "__main__":
+def run_ensemble():
     ensemble_directory.mkdir(exist_ok=True)
 
     aoscm = AOSCM(context)
@@ -102,10 +129,9 @@ if __name__ == "__main__":
 
         experiment = Experiment(
             dt_cpl=3600,
-            dt_ifs=720,
-            dt_nemo=1200,
-            dt_ice=3600,
-            ifs_nradfr=-1,
+            dt_ifs=900,
+            dt_nemo=900,
+            dt_ice=900,
             ifs_leocwa=False,
             exp_id=exp_id,
             run_start_date=start_date,
@@ -146,3 +172,6 @@ if __name__ == "__main__":
 
     if run_directory.exists():
         shutil.rmtree(run_directory)
+
+if __name__ == "__main__":
+    generate_rstas_files(context)

@@ -1,30 +1,18 @@
 import pandas as pd
-from AOSCMcoupling.context import Context
+
 from AOSCMcoupling.experiment import Experiment
 from AOSCMcoupling.helpers import AOSCM, compute_nstrtini, reduce_output
 from AOSCMcoupling.schwarz_coupling import SchwarzCoupling
 from AOSCMcoupling.templates import render_config_xml
 
-# context = Context(
-#     platform="pc-gcc-openmpi",
-#     model_version=3,
-#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
-#     output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
-#     template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-#     data_dir="/home/valentina/dev/aoscm/initial_data/top_case",
-# )
-context = Context(
-    platform="cosmos",
-    model_version=4,
-    model_dir="/home/vschuller/aoscm",
-    output_dir="/home/vschuller/experiments/output",
-    template_dir="/home/vschuller/ece-scm-coupling/templates",
-    data_dir="/home/vschuller/initial_data/top_case",
-)
+from helpers import get_context, AOSCMVersion
+
+
+context = get_context(AOSCMVersion.ECE43, "top_case")
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30
-exp_prefix = "TOP"
+exp_prefix = "T43"
 
 start_date = pd.Timestamp("2020-04-16")
 simulation_duration = pd.Timedelta(2, "days")
@@ -36,26 +24,25 @@ nstrtini = compute_nstrtini(
 
 experiment = Experiment(
     dt_cpl=3600,
-    dt_ifs=720,
-    dt_nemo=1200,
-    dt_ice=3600,
+    dt_ifs=900,
+    dt_nemo=900,
+    dt_ice=900,
     exp_id="",
     ifs_leocwa=False,
     with_ice=True,
     nem_input_file=context.data_dir / "nemo_from_CMEMS" / "nemo_restart_2020-04-16.nc",
-    ice_input_file=context.data_dir / "nemo_from_CMEMS" / "si3_restart_2020-04-16.nc",
+    ice_input_file=context.data_dir / "nemo_from_CMEMS" / "lim_restart_2020-04-16.nc",
     ifs_input_file=context.data_dir / "MOS6merged.nc",
-    oasis_rstas=context.data_dir / "rstas_from_AMIP" / "rstas_2020-04-16_00_era.nc",
+    oasis_rstas=context.data_dir / "rstas_from_AMIP" / "rstas_2020-04-16_00.nc",
     oasis_rstos=context.data_dir / "rstos_from_CMEMS" / "rstos_2020-04-16.nc",
     run_start_date=start_date,
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
     ifs_levels=137,
-    ifs_nradfr=-1,
+    ifs_nradfr=1,
 )
 
 aoscm = AOSCM(context)
-
 
 def run_naive_experiments():
     for cpl_scheme in cpl_schemes:

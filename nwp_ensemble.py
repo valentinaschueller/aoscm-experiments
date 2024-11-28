@@ -10,6 +10,7 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+from helpers import AOSCMVersion, get_context
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -31,22 +32,7 @@ def get_oifs_input_file(data_dir: Path):
     return data_dir / "ifs" / f"papa_2014-07_era.nc"
 
 
-# context = Context(
-#     platform="pc-gcc-openmpi",
-#     model_version=3,
-#     model_dir="/home/valentina/dev/aoscm/ece3-scm",
-#     output_dir="/home/valentina/dev/aoscm/scm_rundir",
-#     template_dir="/home/valentina/dev/aoscm/scm_rundir/templates",
-#     data_dir="/home/valentina/dev/aoscm/initial_data/nwp",
-# )
-context = Context(
-    platform="cosmos",
-    model_version=4,
-    model_dir="/home/vschuller/aoscm",
-    output_dir="/home/vschuller/experiments/output",
-    template_dir="/home/vschuller/ece-scm-coupling/templates",
-    data_dir="/home/vschuller/initial_data/nwp",
-)
+context = get_context(AOSCMVersion.ECE3, "nwp")
 
 start_dates = pd.date_range(
     pd.Timestamp("2014-07-01 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6h"
@@ -90,9 +76,8 @@ if __name__ == "__main__":
 
         experiment = Experiment(
             dt_cpl=3600,
-            dt_ifs=720,
-            dt_nemo=1200,
-            ifs_nradfr=-1,
+            dt_ifs=900,
+            dt_nemo=900,
             ifs_leocwa=False,
             exp_id=exp_id,
             run_start_date=start_date,
