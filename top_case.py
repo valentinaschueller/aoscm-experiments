@@ -22,6 +22,11 @@ nstrtini = compute_nstrtini(
     start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600)
 )
 
+if context.model_version == 3:
+    ice_model = "lim"
+else:
+    ice_model = "si3"
+
 experiment = Experiment(
     dt_cpl=3600,
     dt_ifs=900,
@@ -31,7 +36,7 @@ experiment = Experiment(
     ifs_leocwa=False,
     with_ice=True,
     nem_input_file=context.data_dir / "nemo_from_CMEMS" / "nemo_restart_2020-04-16.nc",
-    ice_input_file=context.data_dir / "nemo_from_CMEMS" / "lim_restart_2020-04-16.nc",
+    ice_input_file=context.data_dir / "nemo_from_CMEMS" / f"{ice_model}_restart_2020-04-16.nc",
     ifs_input_file=context.data_dir / "MOS6merged.nc",
     oasis_rstas=context.data_dir / "rstas_from_AMIP" / "rstas_2020-04-16_00.nc",
     oasis_rstos=context.data_dir / "rstos_from_CMEMS" / "rstos_2020-04-16.nc",
@@ -39,7 +44,6 @@ experiment = Experiment(
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
     ifs_levels=137,
-    ifs_nradfr=1,
 )
 
 aoscm = AOSCM(context)
