@@ -64,14 +64,7 @@ def run_schwarz_experiments():
     experiment.exp_id = f"{exp_prefix}S"
     experiment.cpl_scheme = 0
     schwarz_exp = SchwarzCoupling(experiment, context)
-    schwarz_exp.run(max_iters)
-
-
-def run_parallel_schwarz_without_cleanup():
-    experiment.exp_id = f"{exp_prefix}S"
-    experiment.cpl_scheme = 0
-    schwarz_exp = SchwarzCoupling(experiment, context, False)
-    schwarz_exp.run(max_iters)
+    schwarz_exp.run(max_iters, rel_tol=1e-5)
 
 
 if __name__ == "__main__":
