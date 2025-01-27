@@ -17,3 +17,19 @@ Makes use of the [EC-Earth SCM tools package](https://github.com/valentinaschuel
 - `plot_nwp_coupling_error.ipynb`: Produces Fig. 9 in the paper
 - `plot_nwp_swr_iterations.ipynb`: Produces Fig. 3 in the paper
 - `plot_nwp_oscillations.ipynb`: Produces plots showing oscillations for non-converged experiments (not part of the paper)
+
+## 2d TOP Experiments
+
+- `top_ensemble.py`: Runs the 84 2d experiments distributed throughout the YOPP targeted observation period, same principle as `nwp_ensemble.py`
+- `plot_top_swr_iterations.ipynb`: Produces a figure similar to Fig. 3 for the TOP experiments
+- `plot_top_version_comparison.ipynb`: Produces Figs. 10 and 11 in the paper
+- `plot_top_ensemble.ipynb`: Produces Fig. 12 in the paper
+- `plot_top_coupling_error.ipynb`: Produces Fig. 13 in the paper
+
+
+## Other files
+
+- `helpers.py`: helper functions reused by different experiments
+- `compute_rstas.py`: standalone script which computes `rstas.nc` based on a `diagvar.nc` file
+- `rstas_template.nc`: template file used by `compute_rstas.py`
+- `aoscm_runner.slurm`: slurm script to use when running the AOSCM on COSMOS
