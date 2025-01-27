@@ -1,7 +1,6 @@
 import pandas as pd
 from AOSCMcoupling import (
     AOSCM,
-    Context,
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,
@@ -10,10 +9,9 @@ from AOSCMcoupling import (
 )
 from helpers import get_context, AOSCMVersion
 
-context = get_context(AOSCMVersion.ECE43, "control_experiment")
-
-exp_prefix = "CEX"
-exp_prefix = "C43"
+context = get_context(AOSCMVersion.ECE3, "control_experiment")
+mass_flux = True
+exp_prefix = "CEX" # use C43 for 'ECE43' configuration, MFN and M43 for mass flux-off experiments
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30
@@ -41,6 +39,7 @@ experiment = Experiment(
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
     ifs_levels=60,
+    ifs_lecumf=mass_flux,
 )
 
 aoscm = AOSCM(context)
@@ -55,14 +54,14 @@ def run_naive_experiments():
         reduce_output(context.output_dir / experiment.exp_id, keep_debug_output=False)
 
 
-def run_schwarz_experiments():
+def run_swr_experiments():
     experiment.exp_id = f"{exp_prefix}S"
     experiment.cpl_scheme = 0
-    schwarz_exp = SchwarzCoupling(experiment, context)
-    schwarz_exp.run(max_iters, rel_tol=1e-5)
+    swr = SchwarzCoupling(experiment, context)
+    swr.run(max_iters, rel_tol=1e-5)
 
 
 if __name__ == "__main__":
     run_naive_experiments()
 
-    run_schwarz_experiments()
+    run_swr_experiments()
