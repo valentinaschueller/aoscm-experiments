@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pandas as pd
 from AOSCMcoupling import (
-    Context,
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,

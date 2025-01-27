@@ -29,39 +29,42 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
 def get_oifs_input_file(data_dir: Path):
     return data_dir / "ifs" / f"papa_2014-07_era.nc"
 
+model_version = AOSCMVersion.ECE3
+mass_flux = True
+context = get_context(model_version, "nwp")
 
-context = get_context(AOSCMVersion.ECE3, "nwp")
+if model_version == AOSCMVersion.ECE3:
+    start_dates = [
+        pd.Timestamp("2014-07-03 00:00:00"),
+        pd.Timestamp("2014-07-12 18:00:00"),
+        pd.Timestamp("2014-07-25 12:00:00"),
+    ]
+elif model_version == AOSCMVersion.ECE43:
+    start_dates = [
+        pd.Timestamp("2014-07-19 00:00"),
+        pd.Timestamp("2014-07-07 06:00"),
+        pd.Timestamp("2014-07-10 18:00"),
+        pd.Timestamp("2014-07-24 18:00"),
+        pd.Timestamp("2014-07-07 18:00"),
+        pd.Timestamp("2014-07-28 18:00"),
+        pd.Timestamp("2014-07-17 06:00"),
+        pd.Timestamp("2014-07-26 12:00"),
+        pd.Timestamp("2014-07-23 06:00"),
+        pd.Timestamp("2014-07-11 18:00"),
+        pd.Timestamp("2014-07-18 06:00"),
+    ]
+else:
+    start_dates = [
+        pd.Timestamp("2014-07-11 12:00"),
+        pd.Timestamp("2014-07-02 12:00"),
+        pd.Timestamp("2014-07-24 18:00"),
+        pd.Timestamp("2014-07-23 12:00"),
+        pd.Timestamp("2014-07-18 06:00"),
+        pd.Timestamp("2014-07-14 18:00"),
+        pd.Timestamp("2014-07-23 00:00"),
+    ]
 
-start_dates_3 = [
-    pd.Timestamp("2014-07-03 00:00:00"),
-    pd.Timestamp("2014-07-12 18:00:00"),
-    pd.Timestamp("2014-07-25 12:00:00"),
-]
-start_dates_43 = [
-    pd.Timestamp("2014-07-19 00:00"),
-    pd.Timestamp("2014-07-07 06:00"),
-    pd.Timestamp("2014-07-10 18:00"),
-    pd.Timestamp("2014-07-24 18:00"),
-    pd.Timestamp("2014-07-07 18:00"),
-    pd.Timestamp("2014-07-28 18:00"),
-    pd.Timestamp("2014-07-17 06:00"),
-    pd.Timestamp("2014-07-26 12:00"),
-    pd.Timestamp("2014-07-23 06:00"),
-    pd.Timestamp("2014-07-11 18:00"),
-    pd.Timestamp("2014-07-18 06:00"),
-]
-start_dates_4 = [
-    pd.Timestamp("2014-07-11 12:00"),
-    pd.Timestamp("2014-07-02 12:00"),
-    pd.Timestamp("2014-07-24 18:00"),
-    pd.Timestamp("2014-07-23 12:00"),
-    pd.Timestamp("2014-07-18 06:00"),
-    pd.Timestamp("2014-07-14 18:00"),
-    pd.Timestamp("2014-07-23 00:00"),
-]
-start_dates = start_dates_3
 simulation_time = pd.Timedelta(2, "days")
-
 forcing_file_start_date = pd.Timestamp("2014-07-01")
 forcing_file_freq = pd.Timedelta(6, "hours")
 
@@ -96,7 +99,7 @@ if __name__ == "__main__":
             dt_ifs=900,
             dt_nemo=900,
             ifs_leocwa=False,
-            # ifs_lecumf=False,
+            ifs_lecumf=mass_flux,
             exp_id=exp_id,
             run_start_date=start_date,
             run_end_date=start_date + simulation_time,
