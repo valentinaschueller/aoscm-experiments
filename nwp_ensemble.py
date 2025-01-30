@@ -9,6 +9,7 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+from ruamel.yaml import YAML
 
 from helpers import AOSCMVersion, get_context
 
@@ -55,6 +56,36 @@ ensemble_directory = context.output_dir / "ensemble_output"
 run_directory = context.output_dir / exp_id
 
 non_converged_experiments = []
+
+
+def print_nonconverged_dates(dir_or_experiments):
+    try:
+        dir_or_experiments.is_dir()
+    except AttributeError:  # list of experiments was passed
+        for experiment in dir_or_experiments:
+            print(experiment.run_start_date)
+        return
+
+    output_dir = dir_or_experiments
+
+    experiment_directories = []
+    yaml = YAML(typ="unsafe", pure=True)
+    for date_dir in output_dir.glob("*"):
+        if not date_dir.is_dir():
+            continue
+        with open(date_dir / "schwarz" / "setup_dict.yaml") as yaml_file:
+            experiment = yaml.load(yaml_file)
+            converged = (
+                experiment.iterate_converged["2-norm"]
+                and experiment.iterate_converged["inf-norm"]
+            )
+            if converged:
+                continue
+        for experiment_dir in date_dir.glob("*"):
+            experiment_directories.append(experiment_dir)
+
+    print([str(dir)[23:36] for dir in experiment_directories[::4]])
+
 
 if __name__ == "__main__":
     ensemble_directory.mkdir(exist_ok=True)
@@ -111,8 +142,7 @@ if __name__ == "__main__":
         if not schwarz.converged:
             non_converged_experiments.append(experiment.run_start_date)
 
-    print("Experiments which did not converge:")
-    print(non_converged_experiments)
-
     if run_directory.exists():
         shutil.rmtree(run_directory)
+
+    print_nonconverged_dates(non_converged_experiments)
