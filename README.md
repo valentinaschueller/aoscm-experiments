@@ -25,6 +25,7 @@ Makes use of the [EC-Earth SCM tools package](https://github.com/valentinaschuel
 - `plot_top_version_comparison.ipynb`: Produces Figs. 10 and 11 in the paper
 - `plot_top_ensemble.ipynb`: Produces Fig. 12 in the paper
 - `plot_top_coupling_error.ipynb`: Produces Fig. 13 in the paper
+- `top_const_albedo_ensemble.py`: Runs the TOP ensemble for the case where the albedo parameterization returns a constant albedo and computes some simple statistics regarding the SWR termination
 
 
 ## Other files
