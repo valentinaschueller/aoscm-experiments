@@ -1,8 +1,8 @@
-import numpy as np
-from ruamel.yaml import YAML
-import xarray as xr
-
 from pathlib import Path
+
+import numpy as np
+import xarray as xr
+from ruamel.yaml import YAML
 
 ensemble_directory = Path("/home/vschuller/experiments/output/const_alb_ensemle")
 schwarz_directories = []

@@ -2,12 +2,9 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from AOSCMcoupling import (
-    Experiment,
-    SchwarzCoupling,
-    compute_nstrtini,
-)
+from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
 from AOSCMcoupling.helpers import AOSCM
+
 from helpers import AOSCMVersion, get_context
 
 
@@ -28,6 +25,7 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
 
 def get_oifs_input_file(data_dir: Path):
     return data_dir / "ifs" / f"papa_2014-07_era.nc"
+
 
 model_version = AOSCMVersion.ECE3
 mass_flux = True

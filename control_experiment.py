@@ -7,11 +7,12 @@ from AOSCMcoupling import (
     reduce_output,
     render_config_xml,
 )
-from helpers import get_context, AOSCMVersion
+
+from helpers import AOSCMVersion, get_context
 
 context = get_context(AOSCMVersion.ECE3, "control_experiment")
 mass_flux = True
-exp_prefix = "CEX" # use C43 for 'ECE43' configuration, MFN and M43 for mass flux-off experiments
+exp_prefix = "CEX"  # use C43 for 'ECE43' configuration, MFN and M43 for mass flux-off experiments
 
 cpl_schemes = [0, 1, 2]
 max_iters = 30

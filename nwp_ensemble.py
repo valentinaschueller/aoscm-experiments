@@ -9,6 +9,7 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+
 from helpers import AOSCMVersion, get_context
 
 

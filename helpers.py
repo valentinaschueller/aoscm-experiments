@@ -1,10 +1,13 @@
-from AOSCMcoupling.context import Context
 from enum import Enum
+
+from AOSCMcoupling.context import Context
+
 
 class AOSCMVersion(Enum):
     ECE3 = 1
     ECE43 = 2
     ECE4 = 3
+
 
 def get_context(model_version: AOSCMVersion, case_str: str):
     if model_version == AOSCMVersion.ECE3:

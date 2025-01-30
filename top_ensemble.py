@@ -1,8 +1,6 @@
 import shutil
 from pathlib import Path
 
-from helpers import get_context, AOSCMVersion
-
 import pandas as pd
 from AOSCMcoupling import (
     Experiment,
@@ -11,6 +9,8 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+
+from helpers import AOSCMVersion, get_context
 
 context = get_context(AOSCMVersion.ECE4, "top_case")
 start_dates = pd.date_range(
@@ -90,7 +90,11 @@ def generate_rstas_files():
         render_config_xml(context, experiment)
         aoscm.run_atmosphere_only()
 
-        compute_rstas(context.output_dir / exp_id, "rstas_template.nc", context.data_dir / "rstas_from_AMIP" / f"rstas_{start_date_string}.nc")
+        compute_rstas(
+            context.output_dir / exp_id,
+            "rstas_template.nc",
+            context.data_dir / "rstas_from_AMIP" / f"rstas_{start_date_string}.nc",
+        )
 
 
 def run_full_ensemble():
@@ -151,6 +155,7 @@ def run_full_ensemble():
 
     if run_directory.exists():
         shutil.rmtree(run_directory)
+
 
 def run_cvg_ensemble():
     exp_id = "TNSB"
@@ -222,6 +227,7 @@ def run_cvg_ensemble():
 
     if run_directory.exists():
         shutil.rmtree(run_directory)
+
 
 if __name__ == "__main__":
     run_cvg_ensemble()

@@ -1,14 +1,10 @@
 import shutil
 from pathlib import Path
 
-from helpers import get_context, AOSCMVersion
-
 import pandas as pd
-from AOSCMcoupling import (
-    Experiment,
-    SchwarzCoupling,
-    compute_nstrtini,
-)
+from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
+
+from helpers import AOSCMVersion, get_context
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -33,6 +29,7 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
 def get_oifs_input_file(data_dir: Path):
     return data_dir / "MOS6merged.nc"
 
+
 context = get_context(AOSCMVersion.ECE4, "top_case")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
@@ -49,6 +46,7 @@ ensemble_directory = context.output_dir / "const_alb_ensemle"
 run_directory = context.output_dir / exp_id
 
 non_converged_experiments = []
+
 
 def run_ensemble():
     ensemble_directory.mkdir(exist_ok=True)
@@ -84,7 +82,7 @@ def run_ensemble():
             with_ice=True,
             ice_input_file=ice_file,
             ifs_levels=137,
-            ice_alb_idry=0.79, # constant albedo value used in SI3
+            ice_alb_idry=0.79,  # constant albedo value used in SI3
         )
 
         experiment.cpl_scheme = 0
@@ -102,7 +100,7 @@ def run_ensemble():
         for iter in range(2, schwarz.iter):
             iter_dir = Path(f"{schwarz.run_directory}_{iter}")
             shutil.rmtree(iter_dir)
-        
+
         if not schwarz.converged:
             non_converged_experiments.append(experiment.run_start_date)
 
@@ -111,6 +109,7 @@ def run_ensemble():
 
     if run_directory.exists():
         shutil.rmtree(run_directory)
+
 
 if __name__ == "__main__":
     run_ensemble()
