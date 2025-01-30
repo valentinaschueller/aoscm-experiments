@@ -1,8 +1,11 @@
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+import xarray as xr
 from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
+from ruamel.yaml import YAML
 
 from helpers import AOSCMVersion, get_context
 
@@ -44,8 +47,6 @@ max_iters = 30
 exp_id = "CALB"
 ensemble_directory = context.output_dir / "const_alb_ensemle"
 run_directory = context.output_dir / exp_id
-
-non_converged_experiments = []
 
 
 def run_ensemble():
@@ -101,15 +102,36 @@ def run_ensemble():
             iter_dir = Path(f"{schwarz.run_directory}_{iter}")
             shutil.rmtree(iter_dir)
 
-        if not schwarz.converged:
-            non_converged_experiments.append(experiment.run_start_date)
-
-    print("Experiments which did not converge:")
-    print(non_converged_experiments)
-
     if run_directory.exists():
         shutil.rmtree(run_directory)
 
 
+def count_swr_iterations():
+    schwarz_directories = []
+    yaml = YAML(typ="unsafe", pure=True)
+    for date_dir in ensemble_directory.glob("*"):
+        if date_dir.is_dir():
+            schwarz_directories.append(date_dir / "swr")
+    experiments = []
+    non_converged_counter = 0
+    for schwarz_dir in schwarz_directories:
+        with open(schwarz_dir / "setup_dict.yaml") as yaml_file:
+            experiment = yaml.load(yaml_file)
+            converged = experiment.iterate_converged["inf-norm"]
+            if converged:
+                experiments.append(experiment)
+            else:
+                non_converged_counter += 1
+
+    iterations = np.array([experiment.iteration for experiment in experiments])
+    iterations = xr.DataArray(iterations, name="iterations")
+
+    print(f"Not converged: {non_converged_counter}")
+    print(f"Mean: {float(iterations.mean())}")
+    print(f"Median: {float(iterations.median())}")
+    print(f"Max: {float(iterations.max())}")
+
+
 if __name__ == "__main__":
     run_ensemble()
+    count_swr_iterations()
