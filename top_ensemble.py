@@ -10,7 +10,7 @@ from AOSCMcoupling import (
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
 
-from helpers import AOSCMVersion, get_context
+from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
 
 context = get_context(AOSCMVersion.ECE4, "top_case")
 start_dates = pd.date_range(
@@ -107,17 +107,19 @@ def run_full_ensemble():
     non_converged_experiments = []
     ensemble_directory.mkdir(exist_ok=True)
 
+    ifs_input_file = context.data_dir / "MOS6merged.nc"
+    ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+
     for start_date in start_dates[-1:]:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
         ice_file = get_ice_file(context.data_dir, start_date, context.model_version)
 
@@ -172,17 +174,19 @@ def run_cvg_ensemble():
 
     aoscm = AOSCM(context)
 
+    ifs_input_file = context.data_dir / "MOS6merged.nc"
+    ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+
     for start_date in start_dates[:13]:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
         ice_file = get_ice_file(context.data_dir, start_date, context.model_version)
 

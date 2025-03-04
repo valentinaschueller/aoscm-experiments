@@ -11,7 +11,7 @@ from AOSCMcoupling import (
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
 from ruamel.yaml import YAML
 
-from helpers import AOSCMVersion, get_context
+from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -29,10 +29,6 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
-def get_oifs_input_file(data_dir: Path):
-    return data_dir / "ifs" / f"papa_2014-07_era.nc"
-
-
 context = get_context(AOSCMVersion.ECE3, "nwp")
 
 start_dates = pd.date_range(
@@ -40,8 +36,8 @@ start_dates = pd.date_range(
 )
 simulation_time = pd.Timedelta(2, "days")
 
-forcing_file_start_date = pd.Timestamp("2014-07-01")
-forcing_file_freq = pd.Timedelta(6, "hours")
+ifs_input_file = context.data_dir / "ifs" / f"papa_2014-07_era.nc"
+ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
 
 coupling_scheme_to_name = {
     0: "parallel",
@@ -98,11 +94,10 @@ if __name__ == "__main__":
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
 
         experiment = Experiment(

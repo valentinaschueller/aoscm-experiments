@@ -8,7 +8,7 @@ from AOSCMcoupling import (
     render_config_xml,
 )
 
-from helpers import AOSCMVersion, get_context
+from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
 
 context = get_context(AOSCMVersion.ECE3, "control_experiment")
 mass_flux = True
@@ -19,10 +19,11 @@ max_iters = 30
 
 start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
-ifs_input_start_date = pd.Timestamp("2014-07-01")
-ifs_input_freq = pd.Timedelta(6, "hours")
+
+ifs_forcing_file = context.data_dir / "oifs_papa_2014-07-01_30.nc"
+ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_forcing_file)
 nstrtini = compute_nstrtini(
-    start_date, ifs_input_start_date, int(ifs_input_freq.seconds / 3600)
+    start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
 )
 
 experiment = Experiment(
@@ -33,7 +34,7 @@ experiment = Experiment(
     ifs_leocwa=False,
     with_ice=False,
     nem_input_file=context.data_dir / "nemo_papa_2014-07-01.nc",
-    ifs_input_file=context.data_dir / "oifs_papa_2014-07-01_30.nc",
+    ifs_input_file=ifs_forcing_file,
     oasis_rstas=context.data_dir / "rstas_2014-07-01_00_era.nc",
     oasis_rstos=context.data_dir / "rstos_2014-07-01.nc",
     run_start_date=start_date,
