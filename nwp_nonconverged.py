@@ -2,8 +2,13 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
-from AOSCMcoupling.helpers import AOSCM
+from AOSCMcoupling import (
+    AOSCM,
+    Experiment,
+    SchwarzCoupling,
+    compute_nstrtini,
+    get_ifs_forcing_info,
+)
 
 from helpers import AOSCMVersion, get_context
 
@@ -21,10 +26,6 @@ def get_rstas_file(data_dir: Path, start_date: pd.Timestamp):
 
 def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
-
-
-def get_oifs_input_file(data_dir: Path):
-    return data_dir / "ifs" / f"papa_2014-07_era.nc"
 
 
 model_version = AOSCMVersion.ECE3
@@ -63,8 +64,6 @@ else:
     ]
 
 simulation_time = pd.Timedelta(2, "days")
-forcing_file_start_date = pd.Timestamp("2014-07-01")
-forcing_file_freq = pd.Timedelta(6, "hours")
 
 max_iters = 40
 
@@ -79,17 +78,21 @@ if __name__ == "__main__":
 
     aoscm = AOSCM(context)
 
+    ifs_input_file = context.data_dir / "ifs" / f"papa_2014-07_era.nc"
+    ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(
+        ifs_input_file
+    )
+
     for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
 
         experiment = Experiment(
@@ -106,7 +109,7 @@ if __name__ == "__main__":
             ifs_input_file=ifs_input_file,
             oasis_rstas=rstas_file,
             oasis_rstos=rstos_file,
-            ifs_levels=60,
+            ifs_levels=ifs_levels,
         )
 
         schwarz = SchwarzCoupling(experiment, context)

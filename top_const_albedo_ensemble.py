@@ -4,10 +4,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import xarray as xr
-from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
+from AOSCMcoupling import (
+    Experiment,
+    SchwarzCoupling,
+    compute_nstrtini,
+    get_ifs_forcing_info,
+)
 from ruamel.yaml import YAML
 
-from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
+from helpers import AOSCMVersion, get_context
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -37,7 +42,7 @@ simulation_time = pd.Timedelta(2, "days")
 
 
 ifs_input_file = context.data_dir / "MOS6merged.nc"
-ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_input_file)
 
 max_iters = 30
 
@@ -78,7 +83,7 @@ def run_ensemble():
             oasis_rstos=rstos_file,
             with_ice=True,
             ice_input_file=ice_file,
-            ifs_levels=137,
+            ifs_levels=ifs_levels,
             ice_alb_idry=0.79,  # constant albedo value used in SI3
         )
 

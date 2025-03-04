@@ -6,6 +6,7 @@ from AOSCMcoupling import (
     Context,
     Experiment,
     compute_nstrtini,
+    get_ifs_forcing_info,
     render_config_xml,
 )
 from AOSCMtools import (
@@ -14,8 +15,6 @@ from AOSCMtools import (
     ice_init_from_cmems,
     ocean_init_from_cmems,
 )
-
-from helpers import get_ifs_forcing_metadata
 
 
 def generate_rstas_files(
@@ -32,7 +31,9 @@ def generate_rstas_files(
     for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
 
-        ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_forcing_file)
+        ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(
+            ifs_forcing_file
+        )
         nstrtini = compute_nstrtini(
             start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
@@ -54,7 +55,7 @@ def generate_rstas_files(
             oasis_rstas=dummy_file,
             oasis_rstos=dummy_file,
             ice_input_file=dummy_file,
-            ifs_levels=137,
+            ifs_levels=ifs_levels,
         )
 
         render_config_xml(context, experiment)

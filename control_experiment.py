@@ -4,11 +4,12 @@ from AOSCMcoupling import (
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,
+    get_ifs_forcing_info,
     reduce_output,
     render_config_xml,
 )
 
-from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
+from helpers import AOSCMVersion, get_context
 
 context = get_context(AOSCMVersion.ECE3, "control_experiment")
 mass_flux = True
@@ -21,7 +22,7 @@ start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
 
 ifs_forcing_file = context.data_dir / "oifs_papa_2014-07-01_30.nc"
-ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_forcing_file)
+ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_forcing_file)
 nstrtini = compute_nstrtini(
     start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
 )
@@ -40,7 +41,7 @@ experiment = Experiment(
     run_start_date=start_date,
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,
-    ifs_levels=60,
+    ifs_levels=ifs_levels,
     ifs_lecumf=mass_flux,
 )
 

@@ -3,14 +3,17 @@ from pathlib import Path
 
 import pandas as pd
 from AOSCMcoupling import (
+    AOSCM,
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,
+    get_ifs_forcing_info,
+    reduce_output,
     render_config_xml,
 )
-from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+from AOSCMcoupling.helpers import serialize_experiment_setup
 
-from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
+from helpers import AOSCMVersion, get_context
 from initial_data import generate_rstas_files
 
 context = get_context(AOSCMVersion.ECE4, "top_case")
@@ -59,7 +62,9 @@ def run_full_ensemble():
     ensemble_directory.mkdir(exist_ok=True)
 
     ifs_input_file = context.data_dir / "MOS6merged.nc"
-    ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+    ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(
+        ifs_input_file
+    )
 
     for start_date in start_dates[-1:]:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
@@ -90,7 +95,7 @@ def run_full_ensemble():
             oasis_rstos=rstos_file,
             with_ice=True,
             ice_input_file=ice_file,
-            ifs_levels=137,
+            ifs_levels=ifs_levels,
         )
 
         experiment.cpl_scheme = 0
@@ -126,7 +131,9 @@ def run_cvg_ensemble():
     aoscm = AOSCM(context)
 
     ifs_input_file = context.data_dir / "MOS6merged.nc"
-    ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+    ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(
+        ifs_input_file
+    )
 
     for start_date in start_dates[:13]:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
@@ -157,7 +164,7 @@ def run_cvg_ensemble():
             oasis_rstos=rstos_file,
             with_ice=True,
             ice_input_file=ice_file,
-            ifs_levels=137,
+            ifs_levels=ifs_levels,
         )
 
         for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():

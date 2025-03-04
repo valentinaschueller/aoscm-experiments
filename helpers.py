@@ -45,15 +45,3 @@ def get_context(model_version: AOSCMVersion, case_str: str):
     else:
         raise ValueError("Model version not supported")
     return context
-
-
-def get_ifs_forcing_metadata(ifs_forcing_file: Path):
-    oifs_forcing = xr.open_dataset(ifs_forcing_file)
-    start_second = oifs_forcing.second[0].to_numpy()
-    if start_second > 0:
-        raise ValueError("OIFS forcing file needs to start at 00:00h.")
-    start_date = pd.Timestamp(str(oifs_forcing.date[0].to_numpy()))
-    frequency = pd.Timedelta(
-        oifs_forcing.time.data[1] - oifs_forcing.time.data[0], unit="seconds"
-    )
-    return start_date, frequency

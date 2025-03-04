@@ -6,12 +6,13 @@ from AOSCMcoupling import (
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,
+    get_ifs_forcing_info,
     render_config_xml,
 )
 from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
 from ruamel.yaml import YAML
 
-from helpers import AOSCMVersion, get_context, get_ifs_forcing_metadata
+from helpers import AOSCMVersion, get_context
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -37,7 +38,7 @@ start_dates = pd.date_range(
 simulation_time = pd.Timedelta(2, "days")
 
 ifs_input_file = context.data_dir / "ifs" / f"papa_2014-07_era.nc"
-ifs_forcing_start, ifs_forcing_freq = get_ifs_forcing_metadata(ifs_input_file)
+ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_input_file)
 
 coupling_scheme_to_name = {
     0: "parallel",
@@ -113,7 +114,7 @@ if __name__ == "__main__":
             ifs_input_file=ifs_input_file,
             oasis_rstas=rstas_file,
             oasis_rstos=rstos_file,
-            ifs_levels=60,
+            ifs_levels=ifs_levels,
         )
 
         for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():
