@@ -11,7 +11,7 @@ from AOSCMcoupling import (
 
 from helpers import AOSCMVersion, get_context
 
-context = get_context(AOSCMVersion.ECE3, "control_experiment")
+context = get_context(AOSCMVersion.ECE3, "papa")
 mass_flux = True
 exp_prefix = "CEX"  # use C43 for 'ECE43' configuration, MFN and M43 for mass flux-off experiments
 
@@ -21,7 +21,7 @@ max_iters = 30
 start_date = pd.Timestamp("2014-07-01")
 simulation_duration = pd.Timedelta(4, "days")
 
-ifs_forcing_file = context.data_dir / "oifs_papa_2014-07-01_30.nc"
+ifs_forcing_file = context.data_dir / "papa_2014-07_era.nc"
 ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_forcing_file)
 nstrtini = compute_nstrtini(
     start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
@@ -34,10 +34,10 @@ experiment = Experiment(
     exp_id="",
     ifs_leocwa=False,
     with_ice=False,
-    nem_input_file=context.data_dir / "nemo_papa_2014-07-01.nc",
+    nem_input_file=context.data_dir / "nemo_from_CMEMS/nemo_restart_2014-07-01.nc",
     ifs_input_file=ifs_forcing_file,
-    oasis_rstas=context.data_dir / "rstas_2014-07-01_00_era.nc",
-    oasis_rstos=context.data_dir / "rstos_2014-07-01.nc",
+    oasis_rstas=context.data_dir / "rstas_from_AMIP/rstas_2014-07-01_00.nc",
+    oasis_rstos=context.data_dir / "rstos_from_CMEMS/rstos_2014-07-01.nc",
     run_start_date=start_date,
     run_end_date=start_date + simulation_duration,
     ifs_nstrtini=nstrtini,

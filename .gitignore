@@ -10,6 +10,9 @@ output/
 *.png
 *.pdf
 *.mp4
+data/*/rstos_from_CMEMS/
+data/*/nemo_from_CMEMS/
+data/*/rstas_from_AMIP/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -38,8 +38,7 @@ def generate_rstas_files(
             start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
 
-        ifs_input_file = context.data_dir / "MOS6merged.nc"
-        dummy_file = ifs_input_file  # needs to be a valid file path
+        dummy_file = ifs_forcing_file  # needs to be a valid file path
 
         experiment = Experiment(
             dt_cpl=3600,
@@ -51,7 +50,7 @@ def generate_rstas_files(
             run_end_date=start_date + simulation_time,
             ifs_nstrtini=nstrtini,
             nem_input_file=dummy_file,
-            ifs_input_file=ifs_input_file,
+            ifs_input_file=ifs_forcing_file,
             oasis_rstas=dummy_file,
             oasis_rstos=dummy_file,
             ice_input_file=dummy_file,
@@ -65,3 +64,16 @@ def generate_rstas_files(
             context.output_dir / exp_id,
             out_dir / f"rstas_{start_date_string}.nc",
         )
+
+
+def generate_nemo_input(
+    context: Context,
+    start_dates: pd.DatetimeIndex,
+    lat: float,
+    lon: float,
+    cmems_file: Path,
+):
+    out_dir = context.data_dir / "nemo_from_CMEMS"
+    out_dir.mkdir(exist_ok=True)
+    for date in start_dates:
+        ocean_init_from_cmems(lat, lon, date, cmems_file, out_dir)
