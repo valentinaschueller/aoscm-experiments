@@ -4,7 +4,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import xarray as xr
-from AOSCMcoupling import Experiment, SchwarzCoupling, compute_nstrtini
+from AOSCMcoupling import (
+    Experiment,
+    SchwarzCoupling,
+    compute_nstrtini,
+    get_ifs_forcing_info,
+)
 from ruamel.yaml import YAML
 
 from helpers import AOSCMVersion, get_context
@@ -29,18 +34,15 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
-def get_oifs_input_file(data_dir: Path):
-    return data_dir / "MOS6merged.nc"
-
-
 context = get_context(AOSCMVersion.ECE4, "top_case")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
 )
 simulation_time = pd.Timedelta(2, "days")
 
-forcing_file_start_date = pd.Timestamp("2020-04-12")
-forcing_file_freq = pd.Timedelta(1, "hours")
+
+ifs_input_file = context.data_dir / "MOS6merged.nc"
+ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_input_file)
 
 max_iters = 30
 
@@ -58,11 +60,10 @@ def run_ensemble():
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
         ice_file = get_ice_file(context.data_dir, start_date)
 
@@ -82,7 +83,7 @@ def run_ensemble():
             oasis_rstos=rstos_file,
             with_ice=True,
             ice_input_file=ice_file,
-            ifs_levels=137,
+            ifs_levels=ifs_levels,
             ice_alb_idry=0.79,  # constant albedo value used in SI3
         )
 

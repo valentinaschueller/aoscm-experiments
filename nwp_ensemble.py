@@ -6,56 +6,28 @@ from AOSCMcoupling import (
     Experiment,
     SchwarzCoupling,
     compute_nstrtini,
+    get_ifs_forcing_info,
     render_config_xml,
 )
-from AOSCMcoupling.helpers import AOSCM, reduce_output, serialize_experiment_setup
+from AOSCMcoupling.helpers import AOSCM, reduce_output
 from ruamel.yaml import YAML
 
 from helpers import AOSCMVersion, get_context
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
-    return data_dir / "nemo_from_CMEMS" / f"init_PAPASTATION_{start_date.date()}.nc"
+    return data_dir / "nemo_from_CMEMS" / f"nemo_restart_{start_date.date()}.nc"
 
 
 def get_rstas_file(data_dir: Path, start_date: pd.Timestamp):
     date = start_date.date()
     hour = f"{start_date.time().hour:02}"
-    rstas_name = f"rstas_{date}_{hour}_era.nc"
+    rstas_name = f"rstas_{date}_{hour}.nc"
     return data_dir / "rstas_from_AMIP" / rstas_name
 
 
 def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
-
-
-def get_oifs_input_file(data_dir: Path):
-    return data_dir / "ifs" / f"papa_2014-07_era.nc"
-
-
-context = get_context(AOSCMVersion.ECE3, "nwp")
-
-start_dates = pd.date_range(
-    pd.Timestamp("2014-07-01 00:00:00"), pd.Timestamp("2014-07-28 18:00:00"), freq="6h"
-)
-simulation_time = pd.Timedelta(2, "days")
-
-forcing_file_start_date = pd.Timestamp("2014-07-01")
-forcing_file_freq = pd.Timedelta(6, "hours")
-
-coupling_scheme_to_name = {
-    0: "parallel",
-    1: "atm-first",
-    2: "oce-first",
-}
-
-max_iters = 30
-
-exp_id = "ENSB"
-ensemble_directory = context.output_dir / "ensemble_output"
-run_directory = context.output_dir / exp_id
-
-non_converged_experiments = []
 
 
 def print_nonconverged_dates(dir_or_experiments):
@@ -87,8 +59,38 @@ def print_nonconverged_dates(dir_or_experiments):
     print([str(dir)[23:36] for dir in experiment_directories[::4]])
 
 
-if __name__ == "__main__":
+def run_nwp_ensemble(with_mass_flux: bool = True):
+    context = get_context(AOSCMVersion.ECE3, "papa")
+
+    start_dates = pd.date_range(
+        pd.Timestamp("2014-07-01 00:00:00"),
+        pd.Timestamp("2014-07-28 18:00:00"),
+        freq="6h",
+    )
+    simulation_time = pd.Timedelta(2, "days")
+
+    ifs_input_file = context.data_dir / f"papa_2014-07_era.nc"
+    ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(
+        ifs_input_file
+    )
+
+    coupling_scheme_to_name = {
+        0: "parallel",
+        1: "atm-first",
+        2: "oce-first",
+    }
+
+    max_iters = 30
+
+    non_converged_experiments = []
+
+    ensemble_directory = context.output_dir / "ensemble_output"
+    if not with_mass_flux:
+        ensemble_directory = context.output_dir / "ensemble_output_nomf"
     ensemble_directory.mkdir(exist_ok=True)
+
+    exp_id = "ENSB"
+    run_directory = context.output_dir / exp_id
 
     aoscm = AOSCM(context)
 
@@ -98,11 +100,10 @@ if __name__ == "__main__":
         start_date_directory.mkdir(exist_ok=True)
 
         nstrtini = compute_nstrtini(
-            start_date, forcing_file_start_date, int(forcing_file_freq.seconds / 3600)
+            start_date, ifs_forcing_start, int(ifs_forcing_freq.seconds / 3600)
         )
         nemo_input_file = get_nemo_file(context.data_dir, start_date)
         rstos_file = get_rstos_file(context.data_dir, start_date)
-        ifs_input_file = get_oifs_input_file(context.data_dir)
         rstas_file = get_rstas_file(context.data_dir, start_date)
 
         experiment = Experiment(
@@ -118,7 +119,8 @@ if __name__ == "__main__":
             ifs_input_file=ifs_input_file,
             oasis_rstas=rstas_file,
             oasis_rstos=rstos_file,
-            ifs_levels=60,
+            ifs_levels=ifs_levels,
+            ifs_lecumf=with_mass_flux,
         )
 
         for coupling_scheme, cpl_scheme_name in coupling_scheme_to_name.items():
@@ -126,7 +128,7 @@ if __name__ == "__main__":
             render_config_xml(context, experiment)
             aoscm.run_coupled_model()
             reduce_output(run_directory, keep_debug_output=False)
-            serialize_experiment_setup(experiment, run_directory)
+            experiment.to_yaml(run_directory / "setup_dict.yaml")
             new_directory = start_date_directory / cpl_scheme_name
             run_directory.rename(new_directory)
 
@@ -146,3 +148,7 @@ if __name__ == "__main__":
         shutil.rmtree(run_directory)
 
     print_nonconverged_dates(non_converged_experiments)
+
+
+if __name__ == "__main__":
+    run_nwp_ensemble(with_mass_flux=False)
