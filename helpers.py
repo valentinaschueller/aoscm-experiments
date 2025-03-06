@@ -40,7 +40,7 @@ def get_context(model_version: AOSCMVersion, case_str: str):
             model_dir="/home/vschuller/aoscm",
             output_dir="/home/vschuller/experiments/output",
             template_dir="/home/vschuller/ece-scm-coupling/templates",
-            data_dir=f"/home/vschuller/initial_data/{case_str}",
+            data_dir=f"/home/vschuller/experiments/data/{case_str}",
         )
     else:
         raise ValueError("Model version not supported")
