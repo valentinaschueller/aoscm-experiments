@@ -11,20 +11,14 @@ from AOSCMcoupling import (
     reduce_output,
     render_config_xml,
 )
-from AOSCMcoupling.helpers import serialize_experiment_setup
 
 from helpers import AOSCMVersion, get_context
-from initial_data import generate_rstas_files
 
-context = get_context(AOSCMVersion.ECE4, "top_case")
+context = get_context(AOSCMVersion.ECE3, "top")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
 )
 simulation_time = pd.Timedelta(2, "days")
-
-
-def generate_initial_data():
-    generate_rstas_files(context, start_dates, context.data_dir / "MOS6merged.nc")
 
 
 def get_nemo_file(data_dir: Path, start_date: pd.Timestamp):
@@ -172,7 +166,7 @@ def run_cvg_ensemble():
             render_config_xml(context, experiment)
             aoscm.run_coupled_model()
             reduce_output(run_directory, keep_debug_output=False)
-            serialize_experiment_setup(experiment, run_directory)
+            experiment.to_yaml(run_directory / "setup_dict.yaml")
             new_directory = start_date_directory / cpl_scheme_name
             run_directory.rename(new_directory)
 
@@ -192,4 +186,4 @@ def run_cvg_ensemble():
 
 
 if __name__ == "__main__":
-    generate_initial_data()
+    run_cvg_ensemble()
