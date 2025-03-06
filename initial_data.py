@@ -77,3 +77,17 @@ def generate_nemo_input(
     out_dir.mkdir(exist_ok=True)
     for date in start_dates:
         ocean_init_from_cmems(lat, lon, date, cmems_file, out_dir)
+
+
+def generate_ice_input(
+    context: Context,
+    start_dates: pd.DatetimeIndex,
+    lat: float,
+    lon: float,
+    cmems_file: Path,
+    ifs_forcing_file: Path,
+):
+    out_dir = context.data_dir / "nemo_from_CMEMS"
+    out_dir.mkdir(exist_ok=True)
+    for date in start_dates:
+        ice_init_from_cmems(lat, lon, date, cmems_file, ifs_forcing_file, out_dir)
