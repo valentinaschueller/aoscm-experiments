@@ -13,6 +13,8 @@ output/
 data/*/rstos_from_CMEMS/
 data/*/nemo_from_CMEMS/
 data/*/rstas_from_AMIP/
+!supplementary_experiments/*.png
+!supplementary_experiments/*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
