@@ -40,7 +40,7 @@ def print_nonconverged_dates(dir_or_experiments):
 
     output_dir = dir_or_experiments
 
-    experiment_directories = []
+    start_dates = []
     yaml = YAML(typ="unsafe", pure=True)
     for date_dir in output_dir.glob("*"):
         if not date_dir.is_dir():
@@ -53,10 +53,9 @@ def print_nonconverged_dates(dir_or_experiments):
             )
             if converged:
                 continue
-        for experiment_dir in date_dir.glob("*"):
-            experiment_directories.append(experiment_dir)
+            start_dates.append(experiment.run_start_date)
 
-    print([str(dir)[23:36] for dir in experiment_directories[::4]])
+    print([date for date in start_dates])
 
 
 def run_nwp_ensemble(with_mass_flux: bool = True):
@@ -142,7 +141,7 @@ def run_nwp_ensemble(with_mass_flux: bool = True):
             nonconverged_schwarz_dir = Path(f"{schwarz.run_directory}_{iter}")
             shutil.rmtree(nonconverged_schwarz_dir)
         if not schwarz.converged:
-            non_converged_experiments.append(experiment.run_start_date)
+            non_converged_experiments.append(experiment)
 
     if run_directory.exists():
         shutil.rmtree(run_directory)
