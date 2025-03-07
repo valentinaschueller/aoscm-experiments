@@ -14,7 +14,7 @@ from AOSCMcoupling import (
 
 from helpers import AOSCMVersion, get_context
 
-context = get_context(AOSCMVersion.ECE3, "top")
+context = get_context(AOSCMVersion.ECE4, "top")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
 )
@@ -60,7 +60,7 @@ def run_full_ensemble():
         ifs_input_file
     )
 
-    for start_date in start_dates[-1:]:
+    for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
@@ -186,4 +186,4 @@ def run_cvg_ensemble():
 
 
 if __name__ == "__main__":
-    run_cvg_ensemble()
+    run_full_ensemble()
