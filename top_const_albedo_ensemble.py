@@ -34,7 +34,7 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
-context = get_context(AOSCMVersion.ECE4, "top_case")
+context = get_context(AOSCMVersion.ECE4, "top")
 start_dates = pd.date_range(
     pd.Timestamp("2020-04-12 00:00:00"), pd.Timestamp("2020-04-18 22:00:00"), freq="2h"
 )
@@ -47,14 +47,14 @@ ifs_forcing_start, ifs_forcing_freq, ifs_levels = get_ifs_forcing_info(ifs_input
 max_iters = 30
 
 exp_id = "CALB"
-ensemble_directory = context.output_dir / "const_alb_ensemle"
+ensemble_directory = context.output_dir / "const_alb_ensemble"
 run_directory = context.output_dir / exp_id
 
 
 def run_ensemble():
     ensemble_directory.mkdir(exist_ok=True)
 
-    for start_date in start_dates[24:]:
+    for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
