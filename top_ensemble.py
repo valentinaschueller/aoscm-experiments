@@ -45,7 +45,9 @@ def get_rstos_file(data_dir: Path, start_date: pd.Timestamp):
     return data_dir / "rstos_from_CMEMS" / f"rstos_{start_date.date()}.nc"
 
 
-def run_full_ensemble():
+def run_default_ensemble():
+    """Runs the TOP case with SWR only and saves each iteration; no SWR termination at runtime."""
+
     exp_id = "TNSB"
     ensemble_directory = context.output_dir / "top_ensemble"
     run_directory = context.output_dir / exp_id
@@ -109,9 +111,11 @@ def run_full_ensemble():
         shutil.rmtree(run_directory)
 
 
-def run_cvg_ensemble():
+def run_regularized_ensemble():
+    """Runs the TOP case with all four coupling algorithms; SWR runtime termination criterion active."""
+
     exp_id = "TNSB"
-    ensemble_directory = context.output_dir / "top_ensemble_cvg"
+    ensemble_directory = context.output_dir / "top_ensemble_reg"
     run_directory = context.output_dir / exp_id
     ensemble_directory.mkdir(exist_ok=True)
     max_iters = 30
@@ -129,7 +133,7 @@ def run_cvg_ensemble():
         ifs_input_file
     )
 
-    for start_date in start_dates[:13]:
+    for start_date in start_dates:
         start_date_string = f"{start_date.date()}_{start_date.hour:02}"
         start_date_directory = ensemble_directory / start_date_string
         start_date_directory.mkdir(exist_ok=True)
@@ -186,4 +190,4 @@ def run_cvg_ensemble():
 
 
 if __name__ == "__main__":
-    run_full_ensemble()
+    run_default_ensemble()
