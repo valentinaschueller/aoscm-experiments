@@ -1,7 +1,8 @@
 # Experiment & Plotting Scripts for the AOSCM SWR Paper
 
 Collection of Python scripts and Jupyter notebooks to run the EC-Earth AOSCM with different coupling algorithms and plot results.
-Makes use of the [EC-Earth SCM tools package](https://github.com/valentinaschueller/ece-scm-coupling) to configure experiments and run the AOSCM with Schwarz waveform relaxation.
+Makes use of the [AOSCMcoupling](https://github.com/valentinaschueller/ece-scm-coupling) to configure experiments and run the AOSCM with Schwarz waveform relaxation.
+Initial data generation requires the [AOSCMtools](https://git.bolin.su.se/bolin/ec-earth/aoscmtools) package, source code available on request.
 
 ## 4d PAPA Experiments
 
@@ -20,15 +21,18 @@ Makes use of the [EC-Earth SCM tools package](https://github.com/valentinaschuel
 
 ## 2d TOP Experiments
 
-- `top_ensemble.py`: Runs the 84 2d experiments distributed throughout the YOPP targeted observation period, same principle as `nwp_ensemble.py`
-- `plot_top_swr_iterations.ipynb`: Produces a figure similar to Fig. 3 for the TOP experiments
+- `top_ensemble.py`: 
+  - `run_default_ensemble()`: Runs the 84 2d experiments distributed throughout the YOPP targeted observation period with SWR, saves all iterations.
+  - `run_regularized_ensemble()`: Runs the same 84 experiments but with all four coupling schemes, only saves the final SWR iterate (cf. `papa_2d.py`). 
+- `plot_top_reg_swr_iterations.ipynb`: Produces a figure similar to Fig. 3 for the TOP experiments
 - `plot_top_version_comparison.ipynb`: Produces Figs. 9, 10 in the paper
 - `plot_top_ensemble.ipynb`: Produces Fig. 11 in the paper
-- `plot_top_coupling_error.ipynb`: Produces Fig. 12 in the paper
-- `top_const_albedo_ensemble.py`: Runs the TOP ensemble for the case where the albedo parameterization returns a constant albedo and computes some simple statistics regarding the SWR termination
+- `plot_top_reg_coupling_error.ipynb`: Produces Fig. 12 in the paper
+- `plot_top_difference_albedo_versions.ipynb`: Produces Fig. C1 in the paper
 
 
 ## Other files
 
+- Supplementary experiment descriptions, plots, and (plotting) scripts are provided in the `supplementary_experiments` directory
 - `helpers.py`: helper functions reused by different experiments
 - `aoscm_runner.slurm`: slurm script to use when running the AOSCM on COSMOS
