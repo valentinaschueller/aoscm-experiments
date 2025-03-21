@@ -14,31 +14,30 @@ SUBROUTINE ice_alb( pt_su, ph_ice, ph_snw, ld_pnd_alb, pafrac_pnd, ph_pnd, palb_
     REAL(wp), INTENT(  out), DIMENSION(:,:,:) ::   palb_os      !  albedo of ice under overcast sky
     !
     INTEGER  ::   ji, jj, jl                ! dummy loop indices
-    REAL(wp) ::   z1_c1, z1_c2,z1_c3, z1_c4 ! local scalar
-    REAL(wp) ::   z1_epsS, z1_epsT,zbetaT,zbetaS
+    REAL(wp) ::   z1_c1, z1_c2, z1_c3, z1_c4 ! local scalar
+    REAL(wp) ::   zepsS, zepsT, zbetaT, zbetaS
+    REAL(wp) ::   zregionT, zregionS        ! size of transition region
     REAL(wp) ::   zcff,zval_dry,zval_mlt
-    REAL(wp) ::   z1_href_pnd               ! inverse of the characteristic length scale (Lecomte et al. 2015)
-    REAL(wp) ::   zalb_pnd, zafrac_pnd      ! ponded sea ice albedo & relative pound fraction
     REAL(wp) ::   zalb_ice, zafrac_ice      ! bare sea ice albedo & relative ice fraction
     REAL(wp) ::   zalb_snw, zafrac_snw      ! snow-covered sea ice albedo & relative snow fraction
     !!---------------------------------------------------------------------
     !
     IF( ln_timing )   CALL timing_start('icealb')
     !
-    z1_href_pnd = 1. / 0.05
     z1_c1   = 1. / ( LOG(1.5) - LOG(0.05) )
     z1_c2   = 1. / 0.05
     z1_c3   = 1. / 0.02
     z1_c4   = 1. / 0.03
-    z1_epsS = 1. / 2.5e-5
-    z1_epsT = 1. / 5.0e-6
+    zepsS = 2.5e-3
+    zepsT = 2.5e-3
+    zregionS = 4 * zepsS
+    zregionT = 4 * zepsT
     !
     DO jl = 1, jpl
         DO jj = 1, jpj
         DO ji = 1, jpi
-            !                       !--- Specific snow, ice and pond fractions (for now, we prevent melt ponds and snow at the same time)
-            zbetaS = 1./(1.+EXP( -(ph_snw(ji,jj,jl)-0.0001)*z1_epsS )) ! ~0 if hs=0 and ~1 if hs>0
-            zbetaT = 1./(1.+EXP(  (pt_su (ji,jj,jl)-rt0)*z1_epsT )) ! ~0 if Ti<0 and ~1 if Ti>=0
+            zbetaS =      1. / (1. + EXP(-(ph_snw(ji,jj,jl) - zregionS )         / zepsS)) ! ~0 if hs=0 and ~1 if hs>0
+            zbetaT = 1. - 1. / (1. + EXP( (pt_su(ji,jj,jl)  - (rt0 - zregionT) ) / zepsT)) ! ~0 if Ti<0 and ~1 if Ti>=0
             zafrac_snw = zbetaS
             zafrac_ice = 1. - zbetaS
             !--- Bare ice albedo (for hi > 150cm)
@@ -76,7 +75,7 @@ This routine produces physically reasonable results:
 ![](top_reg_parallel_output.png)
 
 Coupling scheme results produced with this routine:
-- SWR terminates successfully in 71/84 experiments; mean (median) of 9.9 (10) iterations
+- SWR terminates successfully in 81/84 experiments; mean (median) of 9.9 (10) iterations
 - maximum coupling errors:
   - atmospheric temperature: 3.31 °C
   - moisture: 0.51 g/kg
