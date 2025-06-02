@@ -1,9 +1,6 @@
 from enum import Enum
-from pathlib import Path
 
-import pandas as pd
-import xarray as xr
-from AOSCMcoupling.context import Context
+from AOSCMcoupling import Context
 
 
 class AOSCMVersion(Enum):
