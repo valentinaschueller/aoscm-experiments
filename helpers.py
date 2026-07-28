@@ -15,12 +15,12 @@ class AOSCMVersion(Enum):
 def get_context(model_version: AOSCMVersion, case_str: str):
     if model_version == AOSCMVersion.ECE3:
         context = Context(
-            platform="pc-gcc-openmpi",
+            platform="tetralith",
             model_version=3,
-            model_dir="/home/valentina/dev/aoscm/ece3-scm",
-            output_dir="/home/valentina/dev/aoscm/experiments/PAPA",
-            template_dir="/home/valentina/dev/aoscm/scm-coupling/templates",
-            data_dir=f"/home/valentina/dev/aoscm/experiments/data/{case_str}",
+            model_dir="/home/x_valsc/aoscm",
+            output_dir="/home/x_valsc/experiments/PAPA",
+            template_dir="/home/x_valsc/ece-scm-coupling/templates",
+            data_dir=f"/home/x_valsc/experiments/data/{case_str}",
             ifs_version="40r1v1.1.ref",
         )
     elif model_version == AOSCMVersion.ECE43:
